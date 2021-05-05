@@ -45,18 +45,24 @@ class I18N():
         self.NMSTHRESHOLD         = 'Non-maximum suppression threshold.'
         self.FUNCTION             = 'function that will be executed, detect, cut_out, resize_larger, resize_smaller.'
         self.DEVICE               = 'Device to perform inference on cpu or gpu.'
-        self.CLASSESFILE          = 'Path of class names.'
-        self.IMAGEPATH            = 'Path to image file.'
-        self.FOLDERINIMAGE        = 'Folder for input images.'
-        self.FOLDEROUTIMAGE       = 'Folder for output images.'
-        self.PATHVIDEOFILE        = 'Path to video file.'
+        self.CLASSES_FILE         = 'Path of class names.'
+        self.MODEL_CONGIG         = 'network model configuration'
+        self.MODEL_WEIGHTS        = 'trained network model'
+        self.IMAGE_PATH           = 'Path to image file.'
+        self.FOLDER_INIMAGE       = 'Folder for input images.'
+        self.FOLDER_OUTIMAGE      = 'Folder for output images.'
+        self.PATH_VIDEO_FILE      = 'Path to video file.'
 
 #DETECT
         self.DETECT_OPITION_START      = 'Detection function selected'
         self.DETECT_OPITION_FINISHED   = 'Detection function finished'   
-        
-        
-        
+
+        self.NET                       = 'Network initialized'                
+        self.USING_CPU                 = 'Using CPU device.' 
+        self.USING_GPU                 = 'Using GPU device.'           
+
+        self.PATH_TO_UNINFORMED      = 'Path to uninformed image file.'
+
 #CUT OUT 
         self.CUTOUT_OPTION_STARTED  = 'cut out function started '
         self.CUTOUT_OPTION_FINISHED = 'cut out function finished'
@@ -79,15 +85,26 @@ class I18N():
         self.NMSTHRESHOLD         = 'Limite de supressão não máximo.'
         self.FUNCTION             = 'função que será executada, detectar, cut_out, resize_larger, resize_smaller.'
         self.DEVICE               = 'Dispositivo para realizar inferência na cpu ou gpu.'        
-        self.CLASSESFILE          = 'Caminho dos nomes das classes.'
-        self.IMAGEPATH            = 'Caminho para o arquivo de imagem.'
-        self.FOLDERINIMAGE        = 'Pasta para imagens de entrada.' 
-        self.FOLDEROUTIMAGE       = 'Pasta para imagens de saída.' 
-        self.PATHVIDEOFILE        = 'Caminho para o arquivo de vídeo.'              
+        self.CLASSES_FILE         = 'Caminho dos nomes das classes.'
+        self.MODEL_CONGIG         = 'configuração do modelo da rede'
+        self.MODEL_WEIGHTS        = 'modelo da rede treinado'        
+        self.IMAGE_PATH           = 'Caminho para o arquivo de imagem.'
+        self.FOLDER_INIMAGE       = 'Pasta para imagens de entrada.' 
+        self.FOLDER_OUTIMAGE      = 'Pasta para imagens de saída.' 
+        self.PATH_VIDEO_FILE      = 'Caminho para o arquivo de vídeo.'              
                 
 #DETECT
         self.DETECT_OPITION_START    = 'Função detecção selecionada'
         self.DETECT_OPITION_FINISHED = 'Função detecção finalizada'
+ 
+        self.IMPUT_IMAGE             = 'Input image file ' 
+        self.DOSENT_EXIST            = ' doesnt exist'
+ 
+        self.NET                     = 'Rede inicializada'        
+        self.USING_CPU               = 'Usando dispositivo de CPU.' 
+        self.USING_GPU               = 'Usando dispositivo de GPU.' 
+        
+        self.PATH_TO_UNINFORMED      = 'Caminho para o arquivo de imagem não informado.'
 
 
 
@@ -96,6 +113,7 @@ class I18N():
         self.CUTOUT_OPTION_STARTED  = 'função de corte iniciada'
         self.CUTOUT_OPTION_FINISHED = 'função de corte terminada'
 
+        
 
 #NO FUNCTION
         self.NOFUNC_SELECTED   = 'Nenhuma função selecionada'
