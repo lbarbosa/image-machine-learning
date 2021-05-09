@@ -67,6 +67,11 @@ class I18N():
         self.CUTOUT_OPTION_STARTED  = 'cut out function started '
         self.CUTOUT_OPTION_FINISHED = 'cut out function finished'
         
+        self.PATH_SVS_FILE_IN       = 'Path to the SVS input file.'
+        self.LEVEL                  = 'Level image SVS'
+        self.MESSA_SO_NOT           = 'Not available for OS'
+        self.FOLDER_CREATED         = 'Folder & created successfully'
+        
 #NO FUNCTION
         self.NOFUNC_SELECTED   = 'No function selected'
         
@@ -113,8 +118,11 @@ class I18N():
         self.CUTOUT_OPTION_STARTED  = 'função de corte iniciada'
         self.CUTOUT_OPTION_FINISHED = 'função de corte terminada'
 
+        self.PATH_SVS_FILE_IN       = 'Caminho para o arquivo de entrada SVS.'
+        self.LEVEL                  = 'Level image SVS'
+        self.MESSA_SO_NOT           = 'Não disponível para o SO'
+        self.FOLDER_CREATED         = 'Pasta & criada com sucesso'
         
-
 #NO FUNCTION
         self.NOFUNC_SELECTED   = 'Nenhuma função selecionada'
 

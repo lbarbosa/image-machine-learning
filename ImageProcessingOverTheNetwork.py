@@ -17,16 +17,20 @@ import argparse
 import sys
 import numpy as np
 import os.path
+import platform
+os.add_dll_directory('E:/image-machine-learning/openslide/bin')
+import openslide as open
 import glob, os
 import constantes
 import i18n as i18
+
 
 
 def getArgument( i18n ):
     parser = argparse.ArgumentParser(description= i18n.TITLE )
     parser.add_argument('--confThreshold',  default= constantes.CONFTHRESHOLD_04,   help= i18n.CONFIDENCE_THRESHOLD )
     parser.add_argument('--nmsThreshold',   default= constantes.NMSTHRESHOLD_04,    help= i18n.NMSTHRESHOLD)
-    parser.add_argument('--funcition',      default= constantes.DETECT,             help= i18n.FUNCTION)
+    parser.add_argument('--funcition',      default= constantes.CUT_OUT,             help= i18n.FUNCTION)
     parser.add_argument('--device',         default= constantes.GPU,                help= i18n.DEVICE)
     parser.add_argument('--classesFile',    default= constantes.CLASSES_FILE,       help= i18n.CLASSES_FILE)
     parser.add_argument('--modelConfig',    default= constantes.MODEL_CONGIG,       help= i18n.MODEL_CONGIG)
@@ -35,6 +39,11 @@ def getArgument( i18n ):
     parser.add_argument('--folderInImage',  default= constantes.FOLDER_INIMAGE,     help= i18n.FOLDER_INIMAGE)
     parser.add_argument('--folderOutImage', default= constantes.FOLDER_OUTIMAGE,    help= i18n.FOLDER_OUTIMAGE)
     parser.add_argument('--pathVideoFile',  default= constantes.PATH_VIDEO_FILE,    help= i18n.PATH_VIDEO_FILE)
+    parser.add_argument('--pathSvsFileIn',  default= constantes.PATH_SVS_FILE_IN,   help= i18n.PATH_SVS_FILE_IN)
+#    parser.add_argument('--pathSvsFileOut', default= constantes.PATH_SVS_FILE_OUT,  help= i18n.PATH_SVS_FILE_OUT)
+    parser.add_argument('--level',          default= constantes.LEVEL,  help= i18n.LEVEL)
+#    parser.add_argument('--level',          default= constantes.PATH_SVS_FILE_OUT,  help= i18n.PATH_SVS_FILE_OUT)
+#    parser.add_argument('--pathSvsFileOut', default= constantes.PATH_SVS_FILE_OUT,  help= i18n.PATH_SVS_FILE_OUT)
     args = parser.parse_args()
     return args
 
@@ -59,6 +68,36 @@ def performGetDevice (net):
         net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)
         print(i18n.USING_GPU)
     return net
+
+def performGetPathOut (pathIn, count):
+    
+    title, ext = os.path.splitext(os.path.basename(pathIn))
+    if platform.system() == 'Windows':
+        path = pathIn.split('\\')
+        v_len = len(path) - 2
+        path[v_len]
+    elif  platform.system() == 'Linux':
+        path = pathIn.split('/')
+        v_len = len(path) - 2
+        path[v_len]
+    else:
+        print(i18n.MESSA_SO_NOT)
+        
+    if ext == constantes.SVS :
+        ext = constantes.JPG
+        
+    if (count != 0 ):
+        PathOut = constantes.PATH_SVS_FILE_IN + '\\' +path[v_len]+ '_REC'+ '\\'
+        if os.path.exists(PathOut) == False:
+            os.mkdir(PathOut)
+            print(i18n.FOLDER_CREATED.replace('&', PathOut))
+            imageOut = PathOut + title + str(count) + ext
+        else:
+            imageOut = PathOut + title + str(count) + ext
+    else:
+        imageOut = pathOut + pathOut[len] + title + ext
+
+    return imageOut
 
 def performGetClassesNames ( classesFile ):
     
@@ -145,7 +184,7 @@ def performBatchImageFile (imagePath,
    
     # get image
     image = cv.VideoCapture(imagePath)
-    hasFrame, image = image.read()
+    hasImage, image = image.read()
     # Create a 4D blob from a frame.
     blob = cv.dnn.blobFromImage(image, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
     # Sets the input to the network
@@ -162,39 +201,84 @@ def performBatchImageFile (imagePath,
 
     # Write the frame with the detection boxes
     if (imagePath):
-        title, ext = os.path.splitext(os.path.basename(imagePath))
-        PathPut = imagePathPut + title + ext
+        PathPut = performGetPathOut( imagePath, 0 )
         cv.imwrite(PathPut, image.astype(np.uint8))
     else:
         vid_writer.write(image.astype(np.uint8))
 
     cv.imshow("teste", image)   
+
+
+
+def performCutSvsImage (pathSvsFileIn,
+                        level,
+                        outpwidth,
+                        outpheight,
+                        overlap):
     
+    openSlideObj = open.OpenSlide(pathSvsFileIn)    
+    W, H = openSlideObj.level_dimensions[level]
+    w, h = (outpwidth, outpheight)    
+    Sobreposicao_h = overlap
+    Sobreposicao_w = overlap
+    
+    h_dist = h - Sobreposicao_h
+    w_dist = w - Sobreposicao_w
+        
+    div_h = H / h_dist
+    div_w = W / w_dist
+    
+    div_h = int(div_h) 
+    div_w = int(div_w) 
+    contador = constantes.ZERO
+    
+    for y in range(div_h):
+        for x in range(div_w):
+            print("Y", y*h_dist)
+            print("X", x*w_dist)
+                      
+            contador = contador + 1
+    
+            # Recorta a imagem.
+            imagem2 = openSlideObj.read_region((x*w_dist, y*h_dist),level,(int(w), int(h)))
+            #imagem2 = openSlideObj.read_region((0, 0),vl_level,(W, H))
+            imagem3  = np.array(imagem2,dtype = np.uint8)
+    
+            #Converte a imagem para RGB padrão Opencv
+            r,g,b,a = cv.split(imagem3)
+            imagem4 = cv.merge((b,g,r))
+    
+            #salva imagem no diretorio 
+            pathOut = performGetPathOut( pathSvsFileIn, contador )
+            cv.imwrite(pathOut, imagem4)
+
+    
+#************************************************************
+# Program initialization
+#************************************************************
 if __name__ == "__main__":
     
     #get internationalization
-    i18n = i18.I18N() 
-    
+    i18n = i18.I18N()   
     #get arguments
     args = getArgument( i18n ) 
     
-    #Initializes detection process
+
+#************************************************************
+# Initializes detection process
+#************************************************************
     if (args.funcition == constantes.DETECT):
         print( i18n.DETECT_OPITION_START )
-
         #Return classes name
-        classesNames = performGetClassesNames ( args.classesFile )
-        
+        classesNames = performGetClassesNames ( args.classesFile )      
         #Return network
         net = performGetRede(constantes.MODEL_CONGIG, 
                              constantes.MODEL_WEIGHTS)
-        
         #Selects the CPU or GPU processing device
         performGetDevice(net)
-        
         #processes the batch of images reported for the function
         if(args.folderInImage != ' '):              
-            for pathAndFilename in glob.iglob(os.path.join(args.folderInImage, constantes.ARCHIVE_TYPE )):
+            for pathAndFilename in glob.iglob(os.path.join(args.folderInImage, constantes.ARC_TYPE_JPG )):
                 performBatchImageFile ( pathAndFilename,
                                         args.folderOutImage,
                                         args.confThreshold,
@@ -209,13 +293,22 @@ if __name__ == "__main__":
             sys.exit(1)
         
         print(i18n.DETECT_OPITION_FINISHED)
-        
+    
+#************************************************************
+# Open SVS image, crop and save as JPG 
+#************************************************************  
     elif (args.funcition == constantes.CUT_OUT):
        print(i18n.CUTOUT_OPTION_STARTED)
        
+       for pathAndFilename in  glob.iglob(os.path.join(args.pathSvsFileIn, constantes.ARC_TYPE_SVS )):
+           performCutSvsImage( pathAndFilename, 
+                               args.level,
+                               constantes.OUTPWIDTH,
+                               constantes.OUTPHEIGHT,
+                               constantes.OVERLAP)
+
        print(i18n.CUTOUT_OPTION_FINISHED)
                
     else: 
  
         print(i18n.NOFUNC_SELECTED)
-        
