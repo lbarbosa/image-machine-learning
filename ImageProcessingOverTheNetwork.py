@@ -18,19 +18,18 @@ import sys
 import numpy as np
 import os.path
 import platform
+from numpy.lib.function_base import append
 os.add_dll_directory('E:/image-machine-learning/openslide/bin')
 import openslide as open
 import glob, os
 import constantes
 import i18n as i18
 
-
-
 def getArgument( i18n ):
     parser = argparse.ArgumentParser(description= i18n.TITLE )
     parser.add_argument('--confThreshold',  default= constantes.CONFTHRESHOLD_04,   help= i18n.CONFIDENCE_THRESHOLD )
     parser.add_argument('--nmsThreshold',   default= constantes.NMSTHRESHOLD_04,    help= i18n.NMSTHRESHOLD)
-    parser.add_argument('--funcition',      default= constantes.CUT_OUT,             help= i18n.FUNCTION)
+    parser.add_argument('--function',       default= constantes.MOUNT_IMAGE,        help= i18n.FUNCTION)
     parser.add_argument('--device',         default= constantes.GPU,                help= i18n.DEVICE)
     parser.add_argument('--classesFile',    default= constantes.CLASSES_FILE,       help= i18n.CLASSES_FILE)
     parser.add_argument('--modelConfig',    default= constantes.MODEL_CONGIG,       help= i18n.MODEL_CONGIG)
@@ -40,10 +39,8 @@ def getArgument( i18n ):
     parser.add_argument('--folderOutImage', default= constantes.FOLDER_OUTIMAGE,    help= i18n.FOLDER_OUTIMAGE)
     parser.add_argument('--pathVideoFile',  default= constantes.PATH_VIDEO_FILE,    help= i18n.PATH_VIDEO_FILE)
     parser.add_argument('--pathSvsFileIn',  default= constantes.PATH_SVS_FILE_IN,   help= i18n.PATH_SVS_FILE_IN)
-#    parser.add_argument('--pathSvsFileOut', default= constantes.PATH_SVS_FILE_OUT,  help= i18n.PATH_SVS_FILE_OUT)
-    parser.add_argument('--level',          default= constantes.LEVEL,  help= i18n.LEVEL)
-#    parser.add_argument('--level',          default= constantes.PATH_SVS_FILE_OUT,  help= i18n.PATH_SVS_FILE_OUT)
-#    parser.add_argument('--pathSvsFileOut', default= constantes.PATH_SVS_FILE_OUT,  help= i18n.PATH_SVS_FILE_OUT)
+    parser.add_argument('--level',          default= constantes.LEVEL,              help= i18n.LEVEL)
+    parser.add_argument('--pathPdfFileIn',  default= constantes.PATH_PDF_FILE_IN,   help= i18n.PATH_PDF_FILE_IN)
     args = parser.parse_args()
     return args
 
@@ -71,23 +68,26 @@ def performGetDevice (net):
 
 def performGetPathOut (pathIn, count):
     
+    PathOut  = ''
+    imageOut = ''
     title, ext = os.path.splitext(os.path.basename(pathIn))
-    if platform.system() == 'Windows':
-        path = pathIn.split('\\')
-        v_len = len(path) - 2
-        path[v_len]
-    elif  platform.system() == 'Linux':
-        path = pathIn.split('/')
-        v_len = len(path) - 2
-        path[v_len]
+    if platform.system() == constantes.SYS_WIN:
+       path = pathIn.split(constantes.WIN_BAR)
+       v_bar = constantes.WIN_BAR
+       v_len = len(path) - 2
+       path[v_len]
+    elif  platform.system() == constantes.SYS_LINUX:
+       path = pathIn.split(constantes.LINUX_BAR)
+       v_bar = LINUX_BAR
+       v_len = len(path) - 2
+       path[v_len]
     else:
-        print(i18n.MESSA_SO_NOT)
-        
+       print(i18n.MESSA_SO_NOT)   
     if ext == constantes.SVS :
         ext = constantes.JPG
         
     if (count != 0 ):
-        PathOut = constantes.PATH_SVS_FILE_IN + '\\' +path[v_len]+ '_REC'+ '\\'
+        PathOut = pathIn + v_bar + path[v_len]+ constantes.OUT + v_bar
         if os.path.exists(PathOut) == False:
             os.mkdir(PathOut)
             print(i18n.FOLDER_CREATED.replace('&', PathOut))
@@ -95,15 +95,51 @@ def performGetPathOut (pathIn, count):
         else:
             imageOut = PathOut + title + str(count) + ext
     else:
-        imageOut = pathOut + pathOut[len] + title + ext
+        if ext != '':
+            imageOut = pathOut + pathOut[len] + title + ext
+        else:
+            PathOut = pathIn + v_bar + title + constantes.OUT + v_bar
+            if os.path.exists(PathOut) == False:
+                os.mkdir(PathOut)
+                print(i18n.FOLDER_CREATED.replace('&', PathOut))
 
-    return imageOut
+    return (PathOut, imageOut)
 
+def performGetfileProperties(imagePath):
+    retorno = []
+    count = 0
+    files = os.listdir(imagePath)
+    listDir = [i for i in files if i.endswith('.jpg')]
+    countImage = len(listDir)
+    pathImage =  imagePath + constantes.WIN_BAR + listDir[0] 
+    imageName = listDir[0].replace('0.jpg', '' )
+    imagem  = cv.imread(pathImage)
+    width  = imagem.shape[1]
+    #retorno.append(width)
+    height = imagem.shape[0]
+    #retorno.append(height)
+    for image in range(countImage):
+        print(pathImage.replace('_0.', '_'+ str(image) + '.'))
+        imagem  = cv.imread(pathImage.replace('_0.', '_'+ str(image) + '.'))
+        w = imagem.shape[1]
+        h = imagem.shape[0]    
+        if ( width == w ) and ( height == h ):
+            count = count + 1
+        else:
+            count = count + 1
+            break
+        
+    #retorno.append(count)
+    div_h = countImage / count
+    #retorno.append(int(div_h))
+    #return retorno
+    return ( imageName, width, height, count, int(div_h)  )
+        
 def performGetClassesNames ( classesFile ):
     
     classes = None
-    with open(classesFile, 'rt') as f:
-        classes = f.read().rstrip('\n').split('\n')
+    with open(classesFile, constantes.ARC_MODE_RT) as f:
+        classes = f.read().rstrip(constantes.ARC_SKIP_LINE).split(constantes.ARC_SKIP_LINE)
     return classes
 
 def getOutputsNames(net):
@@ -166,7 +202,7 @@ def postprocess(image, classes, outs, confThreshold, nmsThreshold):
         width = box[2]
         height = box[3]
         drawPred(image, classes, classIds[i], confidences[i], left, top, left + width, top + height) 
-        
+
 #Process batch image file
 def performBatchImageFile (imagePath,
                            imagePathPut,
@@ -208,8 +244,6 @@ def performBatchImageFile (imagePath,
 
     cv.imshow("teste", image)   
 
-
-
 def performCutSvsImage (pathSvsFileIn,
                         level,
                         outpwidth,
@@ -234,24 +268,102 @@ def performCutSvsImage (pathSvsFileIn,
     
     for y in range(div_h):
         for x in range(div_w):
-            print("Y", y*h_dist)
-            print("X", x*w_dist)
-                      
+                    
             contador = contador + 1
-    
+   
             # Recorta a imagem.
             imagem2 = openSlideObj.read_region((x*w_dist, y*h_dist),level,(int(w), int(h)))
             #imagem2 = openSlideObj.read_region((0, 0),vl_level,(W, H))
             imagem3  = np.array(imagem2,dtype = np.uint8)
     
-            #Converte a imagem para RGB padrão Opencv
+            #Convert the image to standard RGB Opencv
             r,g,b,a = cv.split(imagem3)
             imagem4 = cv.merge((b,g,r))
     
-            #salva imagem no diretorio 
             pathOut = performGetPathOut( pathSvsFileIn, contador )
+            #save image to directory 
             cv.imwrite(pathOut, imagem4)
 
+def performMountImage (imagePath):
+    
+    properties = performGetfileProperties(imagePath)
+    
+    # from PIL import Image, ImageFilter
+    w_tile, h_tile = (properties[1], properties[2]) # typical
+    multiples = 2
+    image_factor_w = 2 * multiples # if = 2 there will be 8 width tiles, if 3 there will be 12 width tiles
+    image_factor_h = 2 * multiples # if = 2 there will be 6 high tiles, if 3 there will be 9
+    # This is teh size of the output new bigger TILES for latter Deep Learning processing
+    w_imageOut = w_tile * image_factor_w
+    h_imageOut = h_tile * image_factor_h
+    print(w_imageOut, h_imageOut )
+    # This is the Original size of the Whole Slide Image (example = 33000 x 24000)
+    #w_Orig_Entire_image, h_Orig_Entire_image = ()
+    #div_h = h_Orig_Entire_image / h_tile
+    #div_w = w_Orig_Entire_image / w_tile
+    # This is the information on the number of X and Y tiles
+    div_w = properties[3] #81 #113 # confirm and edit HERE after downloading images
+    div_h = properties[4] #46 #92 # confirm and edit HERE after downloading images
+     
+    #717 76 66
+    # 867 84 38
+     
+    PathPut = performGetPathOut( imagePath, 0 )
+    # assuming numbered images prepare to read the first one
+    i_th_image = 0  # the very first index for the input tiles
+    big_tile_number = 0
+    for y in range(0, div_h, image_factor_h):
+        for x in range(0, div_w, image_factor_w):
+            # Need for controlling the new big tiles formation
+            ###output_image_4_3_factor = np.zeros((h_imageOut, w_imageOut,4), dtype=np.uint8)
+            # this might be 8x6 or 12x9
+            #y_internal_value = 8  # might be 12
+            #x_internal_value = 6  # might be 9
+            #image_factor_h2 = image_factor_h
+            if(div_h - y < image_factor_h):
+                image_factor_h2 = div_h - y
+            else:
+                image_factor_h2 = image_factor_h
+            print(y, image_factor_h2)
+      
+             
+            if(div_w - x < image_factor_w):
+                image_factor_w2 = div_w - x
+            else:
+                image_factor_w2 = image_factor_w
+            print(x, image_factor_w2)
+     
+            for y1 in range(image_factor_h2):
+                for x1 in range(image_factor_w2):
+                    i_th_image = (y+y1)*div_w + x+x1
+                    input_name_ith = imagePath + constantes.WIN_BAR + properties[0] + str(i_th_image) + constantes.JPG
+                    print(input_name_ith)
+                     
+                    #print(i_th_image)
+                    img = cv.imread(input_name_ith)
+                    # Converte a imagem para RGB opencv
+                    #r, g, b = cv2.split(img)
+                    #img_in_rgb = cv2.merge((b, g, r))
+                    img_in_rgb = img
+                    if(x1==0):
+                        matrix_out_v = img_in_rgb
+                    else:
+                        matrix_out_v = np.hstack((matrix_out_v,img_in_rgb))
+                    #output_image_4_3_factor() = img_in_rgb
+                     
+                if(y1==0):
+                        matrix_out_h = matrix_out_v
+                else:
+                        matrix_out_h = np.vstack((matrix_out_h, matrix_out_v))
+            big_tile_number = big_tile_number + 1
+            print('preparing new image', big_tile_number)
+            output_name_ith = PathPut[0] + properties[0] + str(big_tile_number) + constantes.JPG
+            print(output_name_ith)
+            output_image_4_3_factor = matrix_out_h
+            cv.imwrite(output_name_ith, output_image_4_3_factor)    
+    
+    
+    
     
 #************************************************************
 # Program initialization
@@ -267,7 +379,7 @@ if __name__ == "__main__":
 #************************************************************
 # Initializes detection process
 #************************************************************
-    if (args.funcition == constantes.DETECT):
+    if (args.function == constantes.DETECT):
         print( i18n.DETECT_OPITION_START )
         #Return classes name
         classesNames = performGetClassesNames ( args.classesFile )      
@@ -297,10 +409,10 @@ if __name__ == "__main__":
 #************************************************************
 # Open SVS image, crop and save as JPG 
 #************************************************************  
-    elif (args.funcition == constantes.CUT_OUT):
+    elif (args.function == constantes.CUT_OUT):
        print(i18n.CUTOUT_OPTION_STARTED)
        
-       for pathAndFilename in  glob.iglob(os.path.join(args.pathSvsFileIn, constantes.ARC_TYPE_SVS )):
+       for pathAndFilename in glob.iglob(os.path.join(args.pathSvsFileIn, constantes.ARC_TYPE_SVS )):
            performCutSvsImage( pathAndFilename, 
                                args.level,
                                constantes.OUTPWIDTH,
@@ -308,7 +420,16 @@ if __name__ == "__main__":
                                constantes.OVERLAP)
 
        print(i18n.CUTOUT_OPTION_FINISHED)
-               
+       
+#************************************************************
+# Open small JPG image and mount and save in large JPG
+#************************************************************  
+    elif (args.function == constantes.MOUNT_IMAGE):
+        print(i18n.MOUNT_IMAGE_OPTION_STARTED)
+        performMountImage (args.pathPdfFileIn
+                           )
+        
+        print(i18n.MOUNT_IMAGE_OPTION_FINISHED)
     else: 
  
         print(i18n.NOFUNC_SELECTED)

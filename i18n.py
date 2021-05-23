@@ -39,7 +39,9 @@ class I18N():
     
     def languageEnglish(self):
 
-#ARGUMENT  
+#************************************************************
+#ARGUMENT 
+#************************************************************ 
         self.TITLE                = 'UTFPR and SHINSHU image processing research using YOLO and Opencv.'
         self.CONFIDENCE_THRESHOLD = 'Confidence threshold.'      
         self.NMSTHRESHOLD         = 'Non-maximum suppression threshold.'
@@ -53,7 +55,9 @@ class I18N():
         self.FOLDER_OUTIMAGE      = 'Folder for output images.'
         self.PATH_VIDEO_FILE      = 'Path to video file.'
 
-#DETECT
+#************************************************************
+#DETECT 
+#************************************************************ 
         self.DETECT_OPITION_START      = 'Detection function selected'
         self.DETECT_OPITION_FINISHED   = 'Detection function finished'   
 
@@ -63,7 +67,9 @@ class I18N():
 
         self.PATH_TO_UNINFORMED      = 'Path to uninformed image file.'
 
+#************************************************************
 #CUT OUT 
+#************************************************************
         self.CUTOUT_OPTION_STARTED  = 'cut out function started '
         self.CUTOUT_OPTION_FINISHED = 'cut out function finished'
         
@@ -71,20 +77,35 @@ class I18N():
         self.LEVEL                  = 'Level image SVS'
         self.MESSA_SO_NOT           = 'Not available for OS'
         self.FOLDER_CREATED         = 'Folder & created successfully'
+
+
+#************************************************************
+#MOUNT IMAGE
+#************************************************************
+        self.MOUNT_IMAGE_OPTION_STARTED  = 'Mount image function started'
+        self.MOUNT_IMAGE_OPTION_FINISHED = 'Mount image function finished'
+        self.PATH_PDF_FILE_IN            = 'Path to the PDF input file.'
         
+                
+#************************************************************
 #NO FUNCTION
+#************************************************************
         self.NOFUNC_SELECTED   = 'No function selected'
         
                 
+#************************************************************
 #FOOTER
+#************************************************************
         self.WELCOME_TO     = 'Welcome to the software of Pathological Analysis'
         
 
     
     
     def languagePortuguese(self):
-        
-#Argumentos 
+
+#************************************************************
+#ARGUMENT 
+#************************************************************          
         self.TITLE                = 'Pesquisa de processamento de imagem UTFPR e SHINSHU usando YOLO e Opencv.'    
         self.CONFIDENCE_THRESHOLD = 'Limiar de confiança.'
         self.NMSTHRESHOLD         = 'Limite de supressão não máximo.'
@@ -98,7 +119,10 @@ class I18N():
         self.FOLDER_OUTIMAGE      = 'Pasta para imagens de saída.' 
         self.PATH_VIDEO_FILE      = 'Caminho para o arquivo de vídeo.'              
                 
-#DETECT
+
+#************************************************************
+#DETECT 
+#************************************************************ 
         self.DETECT_OPITION_START    = 'Função detecção selecionada'
         self.DETECT_OPITION_FINISHED = 'Função detecção finalizada'
  
@@ -112,9 +136,9 @@ class I18N():
         self.PATH_TO_UNINFORMED      = 'Caminho para o arquivo de imagem não informado.'
 
 
-
-
+#************************************************************
 #CUT OUT 
+#************************************************************
         self.CUTOUT_OPTION_STARTED  = 'função de corte iniciada'
         self.CUTOUT_OPTION_FINISHED = 'função de corte terminada'
 
@@ -122,13 +146,26 @@ class I18N():
         self.LEVEL                  = 'Level image SVS'
         self.MESSA_SO_NOT           = 'Não disponível para o SO'
         self.FOLDER_CREATED         = 'Pasta & criada com sucesso'
-        
+
+
+#************************************************************
+#MOUNT IMAGE
+#************************************************************
+        self.MOUNT_IMAGE_OPTION_STARTED  = 'Função de montagem de imagem iniciada'
+        self.MOUNT_IMAGE_OPTION_FINISHED = 'Função de montagem de imagem finalizada'
+        self.PATH_PDF_FILE_IN            = 'Caminho para o arquivo de entrada PDF.'
+
+#************************************************************
 #NO FUNCTION
+#************************************************************
         self.NOFUNC_SELECTED   = 'Nenhuma função selecionada'
 
 
         
-#RODAPE
+
+#************************************************************
+#FOOTER
+#************************************************************
         self.WELCOME_TO     = 'Bem-vindo ao software de Análise Patológica'
         
             

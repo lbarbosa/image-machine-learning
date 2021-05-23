@@ -11,8 +11,12 @@ Fabio Kurt Schineider
 
 """
 
+import i18n as i18
+import platform
 #--------------------CONSTANTES------------------#
+#************************************************************
 #performBatchImageFile
+#************************************************************
 DETECT  = 'detect'
 CLASSES_FILE        = '/home/lbarbosa/darknet_thalita/data/names.names'
 MODEL_CONGIG        = '/home/lbarbosa/darknet_thalita/cfg/yolov3.cfg'
@@ -27,9 +31,12 @@ INPWIDTH         =  512
 INPHEIGHT        =  512
 
 
+
+#************************************************************
 #performCutSvsImage
+#************************************************************
 CUT_OUT = 'cut_out'
-PATH_SVS_FILE_IN    = 'C:\\Users\\lbarbosa\\Google Drive\\01 - Doutorado\\BASE DE IMAGENS\\BASE DE IMAGENS JUAN ROSAIS\\131-case15\\img_exp_L_2'
+PATH_SVS_FILE_IN = 'C:\\Users\\lbarbosa\\Google Drive\\01 - Doutorado\\BASE DE IMAGENS\\BASE DE IMAGENS JUAN ROSAIS\\131-case15\\img_exp_L_2'
 ZERO             =  0
 LEVEL            =  0
 OUTPWIDTH        =  1024
@@ -38,15 +45,37 @@ OVERLAP          =  0
 JPG              = '.jpg'
 SVS              = '.svs'
 
+#************************************************************
+#MOUNT IMAGE
+#************************************************************
+MOUNT_IMAGE = 'mount_image'
+PATH_PDF_FILE_IN = 'C:\\Users\\lbarbosa\\Google Drive\\01 - Doutorado\\BASE DE IMAGENS\\BASE DE IMAGENS BIOATLAS\\\Imagem_1575'
 
 
-ARC_TYPE_JPG = '*.jpg'
-ARC_TYPE_SVS = '*.svs'
+
+#************************************************************
+#Windows/Linux
+#************************************************************
+
+SYS_WIN   = 'Windows'
+SYS_LINUX = 'Linux'
+LINUX_BAR = '/'
+WIN_BAR   = '\\'
+OUT       = '_OUT'
+
+
+ARC_SKIP_LINE = '\n' 
+ARC_MODE_RT   = 'rt'
+ARC_TYPE_JPG  = '*.jpg'
+ARC_TYPE_SVS  = '*.svs'
 
 GPU = 'GPU'
 CPU = 'CPU'
 
 
+#************************************************************
+#Get Operating System
+#************************************************************
 
 
 
