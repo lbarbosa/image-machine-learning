@@ -12,6 +12,8 @@ Fabio Kurt Schineider
 #************************************************************
 # imports
 #************************************************************
+import constantes
+import i18n as i18
 import cv2 as cv
 import argparse
 import sys
@@ -19,17 +21,15 @@ import numpy as np
 import os.path
 import platform
 from numpy.lib.function_base import append
-os.add_dll_directory('E:/image-machine-learning/openslide/bin')
-import openslide as open
 import glob, os
-import constantes
-import i18n as i18
+os.add_dll_directory(constantes.PATH_OPENSLIDE)
+import openslide as open
 
 def getArgument( i18n ):
     parser = argparse.ArgumentParser(description= i18n.TITLE )
     parser.add_argument('--confThreshold',  default= constantes.CONFTHRESHOLD_04,   help= i18n.CONFIDENCE_THRESHOLD )
     parser.add_argument('--nmsThreshold',   default= constantes.NMSTHRESHOLD_04,    help= i18n.NMSTHRESHOLD)
-    parser.add_argument('--function',       default= constantes.MOUNT_IMAGE,        help= i18n.FUNCTION)
+    parser.add_argument('--function',       default= constantes.CUT_OUT,            help= i18n.FUNCTION)
     parser.add_argument('--device',         default= constantes.GPU,                help= i18n.DEVICE)
     parser.add_argument('--classesFile',    default= constantes.CLASSES_FILE,       help= i18n.CLASSES_FILE)
     parser.add_argument('--modelConfig',    default= constantes.MODEL_CONGIG,       help= i18n.MODEL_CONGIG)
@@ -78,7 +78,7 @@ def performGetPathOut (pathIn, count):
        path[v_len]
     elif  platform.system() == constantes.SYS_LINUX:
        path = pathIn.split(constantes.LINUX_BAR)
-       v_bar = LINUX_BAR
+       v_bar = constantes.LINUX_BAR
        v_len = len(path) - 2
        path[v_len]
     else:
@@ -87,7 +87,7 @@ def performGetPathOut (pathIn, count):
         ext = constantes.JPG
         
     if (count != 0 ):
-        PathOut = pathIn + v_bar + path[v_len]+ constantes.OUT + v_bar
+        PathOut = os.path.dirname(pathIn) + v_bar + path[v_len]+ constantes.OUT + v_bar
         if os.path.exists(PathOut) == False:
             os.mkdir(PathOut)
             print(i18n.FOLDER_CREATED.replace('&', PathOut))
@@ -245,12 +245,13 @@ def performBatchImageFile (imagePath,
     cv.imshow("teste", image)   
 
 def performCutSvsImage (pathSvsFileIn,
+                        pathImage,
                         level,
                         outpwidth,
                         outpheight,
                         overlap):
     
-    openSlideObj = open.OpenSlide(pathSvsFileIn)    
+    openSlideObj = open.OpenSlide(pathImage)    
     W, H = openSlideObj.level_dimensions[level]
     w, h = (outpwidth, outpheight)    
     Sobreposicao_h = overlap
@@ -280,12 +281,13 @@ def performCutSvsImage (pathSvsFileIn,
             r,g,b,a = cv.split(imagem3)
             imagem4 = cv.merge((b,g,r))
     
-            pathOut = performGetPathOut( pathSvsFileIn, contador )
+            pathOut = performGetPathOut( pathImage, contador )
             #save image to directory 
-            cv.imwrite(pathOut, imagem4)
+            cv.imwrite(pathOut[1], imagem4)
+            print(pathOut[1])
 
 def performMountImage (imagePath):
-    
+
     properties = performGetfileProperties(imagePath)
     
     # from PIL import Image, ImageFilter
@@ -360,10 +362,7 @@ def performMountImage (imagePath):
             output_name_ith = PathPut[0] + properties[0] + str(big_tile_number) + constantes.JPG
             print(output_name_ith)
             output_image_4_3_factor = matrix_out_h
-            cv.imwrite(output_name_ith, output_image_4_3_factor)    
-    
-    
-    
+            cv.imwrite(output_name_ith, output_image_4_3_factor)        
     
 #************************************************************
 # Program initialization
@@ -375,7 +374,7 @@ if __name__ == "__main__":
     #get arguments
     args = getArgument( i18n ) 
     
-
+    
 #************************************************************
 # Initializes detection process
 #************************************************************
@@ -391,6 +390,7 @@ if __name__ == "__main__":
         #processes the batch of images reported for the function
         if(args.folderInImage != ' '):              
             for pathAndFilename in glob.iglob(os.path.join(args.folderInImage, constantes.ARC_TYPE_JPG )):
+                print(pathAndFilename)
                 performBatchImageFile ( pathAndFilename,
                                         args.folderOutImage,
                                         args.confThreshold,
@@ -412,8 +412,9 @@ if __name__ == "__main__":
     elif (args.function == constantes.CUT_OUT):
        print(i18n.CUTOUT_OPTION_STARTED)
        
-       for pathAndFilename in glob.iglob(os.path.join(args.pathSvsFileIn, constantes.ARC_TYPE_SVS )):
-           performCutSvsImage( pathAndFilename, 
+       for pathImage in glob.iglob(os.path.join(args.pathSvsFileIn, constantes.ARC_TYPE_SVS )):
+           performCutSvsImage( args.pathSvsFileIn,
+                               pathImage, 
                                args.level,
                                constantes.OUTPWIDTH,
                                constantes.OUTPHEIGHT,
