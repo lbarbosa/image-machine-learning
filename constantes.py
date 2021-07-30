@@ -36,7 +36,7 @@ INPHEIGHT        =  512
 #performCutSvsImage
 #************************************************************
 CUT_OUT = 'cut_out'
-PATH_SVS_FILE_IN = 'C:\\Users\\lbarbosa\\Google Drive\\01 - Doutorado\\BASE DE IMAGENS\\LEEDS\\149335\\149335_2'
+PATH_SVS_FILE_IN = 'C:\\Users\\lbarbosa\\Google Drive\\01 - Doutorado\\BASE DE IMAGENS\\BASE DE IMAGENS CRUAS\\LEEDS\\33836\\33836_2'
 ZERO             =  0
 LEVEL            =  0
 OUTPWIDTH        =  1024
