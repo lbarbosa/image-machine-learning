@@ -15,21 +15,23 @@ Fabio Kurt Schineider
 import constantes
 import i18n as i18
 import cv2 as cv
+import csv
 import argparse
 import sys
 import numpy as np
 import os.path
 import platform
+import shutil
 from numpy.lib.function_base import append
 import glob, os
 os.add_dll_directory(constantes.PATH_OPENSLIDE)
-import openslide as open
+import openslide as opensl
 
 def getArgument( i18n ):
     parser = argparse.ArgumentParser(description= i18n.TITLE )
     parser.add_argument('--confThreshold',  default= constantes.CONFTHRESHOLD_04,   help= i18n.CONFIDENCE_THRESHOLD )
     parser.add_argument('--nmsThreshold',   default= constantes.NMSTHRESHOLD_04,    help= i18n.NMSTHRESHOLD)
-    parser.add_argument('--function',       default= constantes.CUT_OUT,            help= i18n.FUNCTION)
+    parser.add_argument('--function',       default= constantes.DATASET_PREPARE,    help= i18n.FUNCTION)
     parser.add_argument('--device',         default= constantes.GPU,                help= i18n.DEVICE)
     parser.add_argument('--classesFile',    default= constantes.CLASSES_FILE,       help= i18n.CLASSES_FILE)
     parser.add_argument('--modelConfig',    default= constantes.MODEL_CONGIG,       help= i18n.MODEL_CONGIG)
@@ -41,6 +43,8 @@ def getArgument( i18n ):
     parser.add_argument('--pathSvsFileIn',  default= constantes.PATH_SVS_FILE_IN,   help= i18n.PATH_SVS_FILE_IN)
     parser.add_argument('--level',          default= constantes.LEVEL,              help= i18n.LEVEL)
     parser.add_argument('--pathPdfFileIn',  default= constantes.PATH_PDF_FILE_IN,   help= i18n.PATH_PDF_FILE_IN)
+    parser.add_argument('--pathDsImages',   default=constantes.PATH_DS_IMAGES,       help=i18n.PATH_PDF_FILE_IN)
+
     args = parser.parse_args()
     return args
 
@@ -96,7 +100,7 @@ def performGetPathOut (pathIn, count):
             imageOut = PathOut + title + str(count) + ext
     else:
         if ext != '':
-            imageOut = pathOut + pathOut[len] + title + ext
+            imageOut = PathOut + PathOut[len] + title + ext
         else:
             PathOut = pathIn + v_bar + title + constantes.OUT + v_bar
             if os.path.exists(PathOut) == False:
@@ -251,7 +255,7 @@ def performCutSvsImage (pathSvsFileIn,
                         outpheight,
                         overlap):
     
-    openSlideObj = open.OpenSlide(pathImage)    
+    openSlideObj = opensl.OpenSlide(pathImage)
     W, H = openSlideObj.level_dimensions[level]
     w, h = (outpwidth, outpheight)    
     Sobreposicao_h = overlap
@@ -409,7 +413,7 @@ if __name__ == "__main__":
 #************************************************************
 # Open SVS image, crop and save as JPG 
 #************************************************************  
-    elif (args.function == constantes.CUT_OUT):
+    elif args.function == constantes.CUT_OUT:
        print(i18n.CUTOUT_OPTION_STARTED)
        
        for pathImage in glob.iglob(os.path.join(args.pathSvsFileIn, constantes.ARC_TYPE_SVS )):
@@ -425,12 +429,44 @@ if __name__ == "__main__":
 #************************************************************
 # Open small JPG image and mount and save in large JPG
 #************************************************************  
-    elif (args.function == constantes.MOUNT_IMAGE):
+    elif args.function == constantes.MOUNT_IMAGE:
         print(i18n.MOUNT_IMAGE_OPTION_STARTED)
         performMountImage (args.pathPdfFileIn
                            )
-        
+
         print(i18n.MOUNT_IMAGE_OPTION_FINISHED)
-    else: 
- 
+
+    elif args.function == constantes.DATASET_PREPARE:
+        print(i18n.DATASET_PREPARE_OPTION_STARTED)
+        if os.path.exists(constantes.PATH_DS_IMAGES_OUT) == False:
+            os.mkdir(constantes.PATH_DS_IMAGES_OUT)
+            print("arquivo criado")
+        else:
+            print("arquivo ja existe")
+        arq_csv = csv.writer(open(constantes.PATH_CSV, "w", newline='', encoding='utf-8'))
+        arq_csv.writerow(['Imagen','Categoria do objeto','Eixo x','Eixo y','width','height'])
+        for pathImage in glob.iglob(os.path.join(args.pathDsImages, constantes.ARC_TYPE_JPG)):
+            title, ext = os.path.splitext(os.path.basename(pathImage))
+            print(pathImage)
+            pathImage = pathImage.replace(constantes.DOT_JPG, constantes.DOT_TXT)
+            print(pathImage)
+            if os.path.exists(pathImage):
+                with open(pathImage, constantes.ARC_MODE_RT) as arquivo:
+                    conteudo = arquivo.read()
+                    print(conteudo)
+                    conteudo = conteudo.split()
+                    arq_csv.writerow([title, conteudo[0], conteudo[1], conteudo[2], conteudo[3], conteudo[4]])
+                print(pathImage)
+                arquivo.close()
+                jpg_source =  args.pathDsImages + '\\' + title + constantes.DOT_JPG
+                jpg_destination = constantes.PATH_DS_IMAGES_OUT + title + constantes.DOT_JPG
+                shutil.copy2(jpg_source, jpg_destination)
+                txt_source =  args.pathDsImages + '\\' + title + constantes.DOT_TXT
+                txt_destination = constantes.PATH_DS_IMAGES_OUT + title + constantes.DOT_TXT
+                shutil.copy2(txt_source, txt_destination)
+            else:
+                arq_csv.writerow([title,'','','','',''])
+                print("The file does not exist")
+        print(i18n.DATASET_PREPARE_OPTION_FINISHED)
+    else:
         print(i18n.NOFUNC_SELECTED)

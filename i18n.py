@@ -85,7 +85,13 @@ class I18N():
         self.MOUNT_IMAGE_OPTION_STARTED  = 'Mount image function started'
         self.MOUNT_IMAGE_OPTION_FINISHED = 'Mount image function finished'
         self.PATH_PDF_FILE_IN            = 'Path to the PDF input file.'
-        
+
+#************************************************************
+#DATASET PREPARE
+#************************************************************
+        self.DATASET_PREPARE_OPTION_STARTED  = 'Mount image function started'
+        self.DATASET_PREPARE_OPTION_FINISHED = 'Mount image function finished'
+
                 
 #************************************************************
 #NO FUNCTION
@@ -154,6 +160,12 @@ class I18N():
         self.MOUNT_IMAGE_OPTION_STARTED  = 'Função de montagem de imagem iniciada'
         self.MOUNT_IMAGE_OPTION_FINISHED = 'Função de montagem de imagem finalizada'
         self.PATH_PDF_FILE_IN            = 'Caminho para o arquivo de entrada PDF.'
+
+#************************************************************
+#DATASET PREPARE
+#************************************************************
+        self.DATASET_PREPARE_OPTION_STARTED  = 'preparação do conjunto de dados Iniciado!'
+        self.DATASET_PREPARE_OPTION_FINISHED = 'preparação do conjunto de dados terminado!'
 
 #************************************************************
 #NO FUNCTION
