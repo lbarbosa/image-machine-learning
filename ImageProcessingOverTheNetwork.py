@@ -453,11 +453,14 @@ if __name__ == "__main__":
             if os.path.exists(pathImage):
                 with open(pathImage, constantes.ARC_MODE_RT) as arquivo:
                     conteudo = arquivo.read()
-                    print(conteudo)
-                    conteudo = conteudo.split()
-                    arq_csv.writerow([title, conteudo[0], conteudo[1], conteudo[2], conteudo[3], conteudo[4]])
+                    conteudo = conteudo.split("\n")
+                    for linha in conteudo:
+                        print(linha)
+                        linha = linha.split()
+                        arq_csv.writerow([title, linha[0], linha[1], linha[2], linha[3], linha[4]])
                 print(pathImage)
                 arquivo.close()
+
                 jpg_source =  args.pathDsImages + '\\' + title + constantes.DOT_JPG
                 jpg_destination = constantes.PATH_DS_IMAGES_OUT + title + constantes.DOT_JPG
                 shutil.copy2(jpg_source, jpg_destination)

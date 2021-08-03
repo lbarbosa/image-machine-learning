@@ -82,11 +82,11 @@ CPU = 'CPU'
 #performDatasetPrepare
 #************************************************************
 DATASET_PREPARE = 'dataset_prepare'
-PATH_DS_IMAGES  = 'C:\\Users\\lbarbosa\\Google Drive\\01 - Doutorado\\BASE DE IMAGENS\\BASE DE IMAGENS PREPARADAS\\BASE DE IMAGENS BIOATLAS\\Imagem_569_teste'
-EXPERIMENTO     = 'Experimento_BioAtlas_A'
-CSV_NAME        = 'Experimento_BioAtlas_A.csv'
+PATH_DS_IMAGES  = 'C:\\Users\\lbarbosa\\Google Drive\\01 - Doutorado\\BASE DE IMAGENS\\BASE DE IMAGENS PREPARADAS\\BASE DE IMAGENS BIOATLAS\\Imagem_1575'
+EXPERIMENTO     = 'Exp_BioAtlas_A'
+CSV_NAME        = 'Exp_569_BioAtlas_A.csv'
 PATH_DS_IMAGES_OUT = PATH_DS_IMAGES + '\\' + EXPERIMENTO + '\\'
-PATH_CSV        = PATH_DS_IMAGES_OUT + CSV_NAME
+PATH_CSV        = PATH_DS_IMAGES + '\\' + CSV_NAME
 ARC_TYPE_JPG  = '*.jpg'
 DOT_JPG       = '.jpg'
 ARC_TYPE_TXT  = '*.txt'
